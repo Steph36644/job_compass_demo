@@ -2,10 +2,10 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { Plus, MapPin, FileText, Clock, Sparkles } from 'lucide-react';
+import { MapPin, Clock, Sparkles } from 'lucide-react';
 import {
-  ApplicationStatus, STATUS_LABEL, STATUS_COLOR, STATUS_TEXT_COLOR, STATUS_BORDER_COLOR,
-  type Application, type MatchReport,
+  ApplicationStatus, STATUS_LABEL, STATUS_COLOR, STATUS_BORDER_COLOR,
+  type Application,
 } from '@/lib/types';
 import { changeStatus, getMatchReport } from '@/lib/store';
 import { cn, hasJdText, relativeTime } from '@/lib/utils';

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useApplications, useWeeklyReports } from '@/lib/use-store';
-import { ApplicationStatus, STATUS_LABEL, STATUS_COLOR } from '@/lib/types';
+import { ApplicationStatus } from '@/lib/types';
 import { BarChart3, TrendingUp, Sparkles, Target, Lightbulb, ChevronRight } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 
@@ -146,7 +146,7 @@ function FunnelChart({ funnel }: { funnel: { applied: number; assessment: number
 
   return (
     <div className="space-y-2">
-      {stages.map((s, i) => (
+      {stages.map((s) => (
         <div key={s.label} className="flex items-center gap-3">
           <span className="w-16 text-xs text-gray-600 text-right shrink-0">{s.label}</span>
           <div className="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden relative">

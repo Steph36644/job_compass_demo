@@ -1,6 +1,6 @@
 // 在浏览器里把 .docx / PDF 抽成纯文本，再做栏目识别。不上传到任何服务器。
 
-import { getDocument, InvalidPDFException, PasswordResponses } from 'pdfjs-dist';
+import { getDocument, InvalidPDFException, PasswordResponses } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { RESUME_FILE_COPY, inspectResumeUpload } from './resume-file-kind';
 import { resumeNameFromFile, structureResumeText, summarizeStructuredParse } from './resume-structure';
 import type { ResumeFileKind, ResumeParseStatus, ResumeStructured } from './types';
@@ -68,7 +68,10 @@ async function extractDocxText(bytes: Uint8Array): Promise<string> {
 
 async function extractPdfText(bytes: Uint8Array): Promise<string> {
   // 先把 worker 挂到主线程，避免再去拉一份独立的 worker 脚本。
-  await import('pdfjs-dist/build/pdf.worker.entry.js');
+  const worker = await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
+  (globalThis as { pdfjsWorker?: { WorkerMessageHandler: typeof worker.WorkerMessageHandler } }).pdfjsWorker = {
+    WorkerMessageHandler: worker.WorkerMessageHandler,
+  };
   const task = getDocument({
     data: bytes.slice(),
     isEvalSupported: false,

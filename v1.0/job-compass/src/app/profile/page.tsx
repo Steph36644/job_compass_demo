@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useHydrated, useProfile } from '@/lib/use-store';
 import { saveProfile, resetData } from '@/lib/store';
 import type { UserProfile } from '@/lib/types';
-import { User, GraduationCap, MapPin, Briefcase, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { User, GraduationCap, Briefcase, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 const DEGREE_OPTIONS = [
   { value: 1, label: '大专' },

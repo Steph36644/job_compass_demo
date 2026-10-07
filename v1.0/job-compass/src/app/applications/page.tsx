@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Search, Trash2, MapPin, Pencil } from 'lucide-react';
 import { useApplications } from '@/lib/use-store';
 import { deleteApplication } from '@/lib/store';
-import { APPLICATION_CHANNELS, ApplicationStatus, STATUS_LABEL, STATUS_COLOR, STATUS_TEXT_COLOR } from '@/lib/types';
+import { APPLICATION_CHANNELS, STATUS_LABEL, STATUS_COLOR, STATUS_TEXT_COLOR } from '@/lib/types';
 import { cn, formatDate, hasJdText } from '@/lib/utils';
 
 const CHANNELS = ['全部', ...APPLICATION_CHANNELS];

@@ -12,4 +12,16 @@ declare module 'jszip' {
   export default JSZip;
 }
 
-declare module 'pdfjs-dist/build/pdf.worker.entry.js';
+declare module 'pdfjs-dist/legacy/build/pdf.mjs' {
+  export {
+    getDocument,
+    InvalidPDFException,
+    PasswordResponses,
+  } from 'pdfjs-dist';
+}
+
+declare module 'pdfjs-dist/legacy/build/pdf.worker.mjs' {
+  export const WorkerMessageHandler: {
+    setup(handler: object, port: object): void;
+  };
+}

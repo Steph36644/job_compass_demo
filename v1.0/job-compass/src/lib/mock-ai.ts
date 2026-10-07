@@ -35,7 +35,6 @@ export async function parseJd(jdText: string): Promise<StructuredJd> {
   let currentSection: 'resp' | 'req' | 'bonus' | null = null;
 
   for (const line of lines) {
-    const lower = line.toLowerCase();
     if (/岗位职责|工作职责|岗位描述|你将负责|工作内容/.test(line)) {
       currentSection = 'resp';
       continue;
@@ -166,7 +165,7 @@ export async function generateMatchReport(
       jdQuote: req,
       matchStatus: matched.status,
       resumeQuote: matched.quote,
-      suggestion: matched.status !== 'matched' ? buildSuggestion(req, matched.status) : undefined,
+      suggestion: matched.status !== 'matched' ? buildSuggestion(req) : undefined,
     });
   }
 
@@ -179,7 +178,7 @@ export async function generateMatchReport(
       jdQuote: resp,
       matchStatus: matched.status,
       resumeQuote: matched.quote,
-      suggestion: matched.status !== 'matched' ? buildSuggestion(resp, matched.status) : undefined,
+      suggestion: matched.status !== 'matched' ? buildSuggestion(resp) : undefined,
     });
   }
 
@@ -210,7 +209,7 @@ export async function generateMatchReport(
       jdQuote: bonus,
       matchStatus: matched.status === 'matched' ? 'matched' : 'missing',
       resumeQuote: matched.quote,
-      suggestion: matched.status !== 'matched' ? `加分项：${buildSuggestion(bonus, 'partial')}` : undefined,
+      suggestion: matched.status !== 'matched' ? `加分项：${buildSuggestion(bonus)}` : undefined,
     });
   }
 
@@ -268,7 +267,6 @@ function matchInResume(
   resumeText: string,
   structured: Resume['structured']
 ): { status: 'matched' | 'partial' | 'missing'; quote?: string } {
-  const lower = req.toLowerCase();
   // 提取关键词（去掉常见助词）
   const keywords = req
     .replace(/[的了和与及或、，。；：（）()【】\[\]]/g, ' ')
@@ -298,7 +296,7 @@ function matchInResume(
   return { status: 'missing' };
 }
 
-function buildSuggestion(req: string, status: 'partial' | 'missing'): string {
+function buildSuggestion(req: string): string {
   if (/学历|本科|硕士|博士|应届|工作经验/.test(req)) {
     return `该岗位要求「${req}」，与你的背景可能不匹配，建议评估是否调整投递方向`;
   }
