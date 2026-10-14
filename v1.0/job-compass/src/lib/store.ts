@@ -41,6 +41,12 @@ const DEFAULT_DATA: AppData = {
 let cache: AppData = DEFAULT_DATA;
 let listeners: Array<() => void> = [];
 let hydrated = false;
+let cloudSync: ((data: AppData) => void | Promise<void>) | null = null;
+
+/** 登录后由界面注册。未登录或注册前不推云端，本地保存仍然成功。 */
+export function registerCloudSync(fn: ((data: AppData) => void | Promise<void>) | null) {
+  cloudSync = fn;
+}
 
 // 从 localStorage 加载数据（仅客户端，挂载后调用）
 export function hydrate() {
@@ -70,6 +76,15 @@ function save(data: AppData) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
   listeners.forEach((l) => l());
+  if (cloudSync) {
+    void Promise.resolve(cloudSync(data)).catch(() => {
+      // 云端失败不回滚本地。
+    });
+  }
+}
+
+export function replaceState(data: AppData) {
+  save({ ...DEFAULT_DATA, ...data });
 }
 
 export function getState(): AppData {

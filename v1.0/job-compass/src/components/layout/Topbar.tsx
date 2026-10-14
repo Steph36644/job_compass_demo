@@ -2,16 +2,21 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Bell, Compass, Zap } from 'lucide-react';
+import { Plus, Bell, Compass, Zap, Cloud } from 'lucide-react';
 import { useNotifications, useUnreadCount } from '@/lib/use-store';
 import { markNotificationRead, markAllNotificationsRead } from '@/lib/store';
 import { cn, relativeTime } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
+import { readPrimarySource } from '@/lib/primary-source';
+import { MSG_PRIMARY_CLOUD, MSG_PRIMARY_LOCAL } from '@/lib/demo-messages';
 
 export function Topbar() {
   const [showNotif, setShowNotif] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const notifications = useNotifications();
   const unreadCount = useUnreadCount();
+  const { user } = useAuth();
+  const primary = readPrimarySource();
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -37,6 +42,16 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-2">
+        <span className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 text-xs text-gray-600">
+          <Cloud className="w-3.5 h-3.5" />
+          {primary === 'cloud' ? MSG_PRIMARY_CLOUD : MSG_PRIMARY_LOCAL}
+        </span>
+        <Link
+          href={user ? '/profile#cloud-import' : '/login'}
+          className="inline-flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+        >
+          {user?.email ? '已登录' : '登录'}
+        </Link>
         <Link
           href="/applications/new?mode=quick"
           title="快速录入"

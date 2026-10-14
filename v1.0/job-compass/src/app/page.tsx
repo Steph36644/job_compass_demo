@@ -5,10 +5,12 @@ import { useApplications } from '@/lib/use-store';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { ApplicationStatus } from '@/lib/types';
 import { loadSeedData } from '@/lib/store';
-import { Briefcase, FileCheck, Users, Trophy, TrendingUp, Sparkles } from 'lucide-react';
+import { Briefcase, FileCheck, Users, Trophy, TrendingUp, Sparkles, Cloud, MonitorSmartphone, Bot } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 export default function HomePage() {
   const applications = useApplications();
+  const { user, openLoginPrompt } = useAuth();
 
   const stats = {
     total: applications.length,
@@ -21,6 +23,24 @@ export default function HomePage() {
 
   return (
     <div className="py-5">
+      <div className="px-4 md:px-6 mb-4">
+        <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-gray-600">
+            台账在这台浏览器里，未登录也可以增删改查。当前主源：本地。云同步、多端和切换主源需要登录。
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <GateButton loggedIn={Boolean(user)} feature="cloud" href="/profile#cloud-import" onLogin={openLoginPrompt}>
+              <Cloud className="w-4 h-4" />云同步
+            </GateButton>
+            <GateButton loggedIn={Boolean(user)} feature="devices" href="/profile#cloud-import" onLogin={openLoginPrompt}>
+              <MonitorSmartphone className="w-4 h-4" />多端
+            </GateButton>
+            <GateButton loggedIn={Boolean(user)} feature="ai" href="/insights" onLogin={openLoginPrompt}>
+              <Bot className="w-4 h-4" />AI
+            </GateButton>
+          </div>
+        </div>
+      </div>
       {applications.length === 0 ? (
         /* 空态：只渲染一处引导，不渲染看板 */
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -75,6 +95,20 @@ export default function HomePage() {
       )}
     </div>
   );
+}
+
+function GateButton({
+  loggedIn, feature, href, onLogin, children,
+}: {
+  loggedIn: boolean;
+  feature: 'ai' | 'cloud' | 'devices';
+  href: string;
+  onLogin: (feature: 'ai' | 'cloud' | 'devices') => void;
+  children: React.ReactNode;
+}) {
+  const className = 'inline-flex items-center gap-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700';
+  if (loggedIn) return <Link href={href} className={className}>{children}</Link>;
+  return <button type="button" onClick={() => onLogin(feature)} className={className}>{children}</button>;
 }
 
 function StatCard({

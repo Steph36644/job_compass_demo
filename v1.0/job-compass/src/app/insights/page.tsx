@@ -5,6 +5,9 @@ import { useApplications, useWeeklyReports } from '@/lib/use-store';
 import { ApplicationStatus } from '@/lib/types';
 import { BarChart3, TrendingUp, Sparkles, Target, Lightbulb, ChevronRight } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
+import { useAuth } from '@/lib/auth-context';
+import { MSG_AI_DISCLAIMER, MSG_AI_RETRY, MSG_LOGIN_AI_WITH_LOCAL } from '@/lib/demo-messages';
+import { aiFailureMessage } from '@/lib/ai-request';
 
 export default function InsightsPage() {
   const applications = useApplications();
@@ -166,12 +169,66 @@ function FunnelChart({ funnel }: { funnel: { applied: number; assessment: number
 
 function WeeklyReviewSection({ reports }: { reports: ReturnType<typeof useWeeklyReports> }) {
   const [expanded, setExpanded] = useState(false);
+  const { user, openLoginPrompt } = useAuth();
+  const [note, setNote] = useState('');
+  const [draft, setDraft] = useState('');
+  const [pending, setPending] = useState(false);
+
+  const generate = async () => {
+    if (!user) {
+      setNote(MSG_LOGIN_AI_WITH_LOCAL);
+      openLoginPrompt('ai');
+      return;
+    }
+    setPending(true);
+    setNote('');
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'system',
+              content: '你是求职罗盘的周复盘撰写助手。结论必须能由给定统计直接推出。不要猜测姓名、电话或邮箱。',
+            },
+            { role: 'user', content: `已有周复盘条数：${reports.length}。请用简短中文给出本周可核对的下一步。` },
+          ],
+        }),
+      });
+      const body = (await response.json()) as { content?: string; message?: string; error?: string };
+      if (!response.ok) {
+        setNote(body.message || aiFailureMessage(response.status, body.error));
+        return;
+      }
+      setDraft(body.content || '');
+      setNote(MSG_AI_DISCLAIMER);
+    } catch {
+      setNote(MSG_AI_RETRY);
+    } finally {
+      setPending(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-purple-500" />AI 周度复盘
-      </h2>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-purple-500" />AI 周度复盘
+        </h2>
+        <button
+          type="button"
+          onClick={() => void generate()}
+          disabled={pending}
+          className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm disabled:opacity-50"
+        >
+          {pending ? '正在生成…' : '生成本周复盘'}
+        </button>
+      </div>
+      <p className="text-xs text-gray-500 mb-3">{MSG_AI_DISCLAIMER}</p>
+      {note && <p className="text-sm text-gray-700 mb-3">{note}</p>}
+      {draft && <p className="text-sm text-gray-800 whitespace-pre-wrap mb-3">{draft}</p>}
       {reports.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
           <Sparkles className="w-10 h-10 mx-auto mb-2 opacity-40" />
