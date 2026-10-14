@@ -5,6 +5,7 @@ import { useHydrated, useProfile } from '@/lib/use-store';
 import { saveProfile, resetData } from '@/lib/store';
 import type { UserProfile } from '@/lib/types';
 import { User, GraduationCap, Briefcase, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CloudPanel } from '@/components/cloud/CloudPanel';
 
 const DEGREE_OPTIONS = [
   { value: 1, label: '大专' },
@@ -125,6 +126,8 @@ function ProfileForm({ profile }: { profile: UserProfile | null }) {
         </div>
       </div>
 
+      <CloudPanel />
+
       {/* 数据管理 */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
         <h2 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -153,7 +156,7 @@ function ProfileForm({ profile }: { profile: UserProfile | null }) {
           用数据和 AI 回答「我投到哪了、我还缺什么、下一步该做什么」。
         </p>
         <div className="mt-3 text-xs text-gray-400">
-          V1.0 MVP · 数据存储于本地浏览器 · AI 功能为模拟演示
+          公开演示 · 同步自 V2.0（2026-10-14）· 未配置环境时数据只在本地浏览器 · 示例数据均为虚构
         </div>
       </div>
     </div>

@@ -1,90 +1,57 @@
-# 求职罗盘 Job Compass（V1.0 MVP）
+# 求职罗盘 Job Compass（公开演示 · V2.0）
 
-求职进度一站式追踪应用：用看板管理投递全流程，记录简历与状态流转，并通过数据洞察复盘求职进展。数据保存在浏览器本地（localStorage），无需后端服务即可运行。
+这是公开演示，不是生产环境。示例数据均为虚构。未配置环境时，投递、简历和看板只保存在这台浏览器的 localStorage / IndexedDB。
 
-## 功能模块
+版本：对齐私有仓库 V2.0，截至 2026-10-14（`main` @ `de4a9ef`，P0–P3：登录、本地优先的云同步、导入切换主源、服务端托管供应商 Key）。本目录没有生产密钥，也没有个人快照。
 
-- **看板**：按「待投递 / 已投递 / 测评笔试 / 面试中 / Offer / 已被拒 / 已终止」分列展示投递卡片，支持拖拽流转
-- **投递记录**：新增、查看、编辑投递详情，记录状态变更日志。支持「快速录入」（只需公司和岗位）和截图识别 JD
-- **简历**：管理简历资料
-- **数据洞察**：投递趋势与状态分布统计
-- **我的**：个人配置，支持数据导入 / 导出、重置与示例数据载入
+## 不配置环境直接运行
 
-## 技术栈
-
-| 类别 | 选型 |
-| --- | --- |
-| 框架 | Next.js 16（App Router） |
-| UI | React 19 + TypeScript 5 |
-| 样式 | Tailwind CSS 4 |
-| 图标 | lucide-react |
-| 日期 | date-fns |
-| 数据存储 | 浏览器 localStorage（纯前端，无后端）；JD 截图放 IndexedDB |
-| JD 截图识别 | 浏览器本地 [tesseract.js](https://github.com/naptha/tesseract.js)（中文 + 英文） |
-
-## 环境要求
-
-- **Node.js ≥ 20.9.0**（Next.js 16 硬性要求；建议使用 Node 20 LTS 或 22 LTS）
-- npm 10+（随 Node 安装），或 pnpm / yarn 任选其一
-
-> macOS 推荐使用 [nvm](https://github.com/nvm-sh/nvm) 管理 Node 版本：
->
-> ```bash
-> brew install nvm   # 或按 nvm 官方说明安装
-> nvm install 22
-> nvm use 22
-> ```
-
-## 快速开始
+前置条件：**Node.js ≥ 20.9.0**
 
 ```bash
-# 1. 安装依赖（仓库已提交 package-lock.json，推荐 npm ci 严格按锁文件安装）
 npm ci
-# 如 npm ci 因环境差异报错，可改用 npm install
-
-# 2. 启动开发服务器
 npm run dev
 ```
 
-打开浏览器访问 [http://localhost:3000](http://localhost:3000) 即可使用。首次进入为空数据，可在页面中点击「载入示例数据体验」快速试用。
+打开 http://localhost:3000 ，点击「载入示例数据体验」。
+
+此时：
+
+- 本地增删改查可用。
+- 登录页会说明尚未配置 Supabase。
+- AI 按钮会要求先登录；没有服务端 Key 时提示「暂时无法调用 AI」。
+- 云同步和切换主源在未登录时不会改写本地台账。
+
+## 使用你自己的 Supabase / AI
+
+复制 `.env.example` 为 `.env.local`（该文件已被 git 忽略）。只填写**你自己的**项目，不要复用生产项目：
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`（只要可公开的 anon / publishable key）
+- `JOB_COMPASS_AI_API_KEY`（只在服务端，不要改成 `NEXT_PUBLIC_`）
+
+不要写入服务端私钥，不要把 `.env.local` 提交到这个公开仓库。
+
+在你的 Supabase SQL 编辑器执行 `supabase/migrations/001_public_demo_snapshot.sql`，然后重启 `npm run dev`。该表按登录用户隔离。它是公开演示的快照结构，不是私有仓库 migration 原文。
+
+## 功能
+
+- **看板**：待投递到 Offer 的状态列，空数据时提供示例数据。
+- **投递 / 简历**：本地记录，可快速录入。
+- **数据洞察**：本地统计；「生成本周复盘」走服务端 AI，失败时不写入台账。
+- **登录**：邮箱和密码。未配置 Supabase 时只显示说明。
+- **云同步**：登录后把本地文字台账推到你自己的项目；失败不回滚本地。主源默认仍是本地。
+- **多端导入**：登录后拉取云端快照，写入前先做本地备份，确认后才把主源切到云端，并可回滚。
 
 ## 常用命令
 
 ```bash
-npm run dev     # 启动开发服务器（热更新）
-npm run build   # 生产环境构建
-npm run start   # 运行构建后的生产服务
-npm run lint    # ESLint 代码检查
+npm run dev
+npm run build
+npm test
+npx tsc --noEmit
 ```
 
-## 目录结构
+## 有意不包含
 
-```
-job-compass/
-├── src/
-│   ├── app/            # App Router 页面（看板 / 投递记录 / 简历 / 洞察 / 我的）
-│   ├── components/     # 看板与布局组件（Sidebar、Topbar、KanbanBoard 等）
-│   └── lib/            # 类型定义、本地存储 store、mock 数据与工具函数
-├── public/             # 静态资源
-├── package.json
-├── tsconfig.json
-├── next.config.ts
-├── postcss.config.mjs
-└── eslint.config.mjs
-```
-
-## 快速录入与截图识别
-
-手机上的招聘 App（Boss 直聘、猎聘等）经常复制不了 JD。可以：
-
-1. 点「快速录入」，只填公司名称和岗位名称即可进看板。地点、薪资备注、来源、链接和一句话备注都是选填。
-2. 在新建或编辑投递时，选择、拖入或粘贴 JD 截图。文字识别使用浏览器里的 tesseract.js（简体中文 + 英文），不经过服务器，也不使用付费云 OCR。
-3. 识别成功后会填入 JD 原文，并走现有的 JD 结构化解析。已经手填的公司、岗位、地点和薪资不会被覆盖。
-
-已知限制：手写、过小、过糊、纯图片（没有文字）的截图识别不好；截图里的按钮和导航文字也会被认进来，需要自己删掉。首次识别需要联网下载语言包和识别引擎，之后会缓存在本机。截图保存在 IndexedDB，不进 localStorage，也不包含在「我的」页面的导出文件里。
-
-## 数据与隐私说明
-
-- 所有求职数据仅存储在当前浏览器的 localStorage 中，不会上传到任何服务器。
-- 清理浏览器站点数据会导致记录丢失，建议定期使用「我的」页面中的导出功能备份。
-- 项目不包含任何 `.env` 环境变量或密钥；如未来接入后端，请参考 `.gitignore` 规则避免提交 `.env*` 文件。
+本机 Agent 数据层、个人备份、简历原件、JD 截图，以及私有仓库的 git 历史。

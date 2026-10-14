@@ -10,9 +10,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test src/lib/resume-structure.test.ts src/lib/resume-file-kind.test.ts src/lib/parse-resume-file.test.ts"
+    "test": "tsx --test src/lib/resume-structure.test.ts src/lib/resume-file-kind.test.ts src/lib/parse-resume-file.test.ts src/lib/demo-security.test.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.47.0",
